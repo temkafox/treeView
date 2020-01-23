@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <ul>
-      <TreeView v-for="(item) in treeData" :key="item.id" :treeData="item" :value="value" @select-another-value="selectAnotherValue"/>
+      <TreeView v-for="(item, index) in treeData" :key="index" :treeData="item" :value="value" @select-another-value="selectAnotherValue "/>
     </ul>
   </div>
 </template>

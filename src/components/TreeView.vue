@@ -46,7 +46,7 @@ export default {
 			this.$emit('select-another-value', value)
 		},
 		getSelectedValue(value) {
-			return this.value === value ? `Value: ${this.value}` : 'Value:'
+			return this.value === value ? `Value: ${this.value}` : 'Value: none'
 		}
 	}
 }
