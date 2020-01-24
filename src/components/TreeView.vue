@@ -16,8 +16,8 @@
 					v-for="(child, index) in treeData.phones"
 					:key="index"
 					:treeData="child"
-					@select-another-value="selectAnotherValue"
 					:value="value"
+					@select-another-value="selectAnotherValue"
 				/>
 			</template>
 		</ul>
@@ -27,7 +27,10 @@
 <script>
 export default {
 	name: 'TreeView',
-	props: ['treeData', 'value'],
+	props: {
+		treeData: Object,
+		value: String
+	},
 	data() {
 		return {
 			isOpen: false,
@@ -36,7 +39,7 @@ export default {
 	},
 	methods: {
 		hasChildren(item) {
-			return (item.phones.length > 1)
+			return (item.phones.length > 0)
 		},
 		openNode(value) {
 			this.$emit('select-another-value', value)
