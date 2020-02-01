@@ -18,7 +18,6 @@
 					:item="child"
 					:value="value"
 					:treeData="childTreeData"
-					:isSearch="isSearch"
 					:searchInputText="searchInputText"
 					:openedNodes="openedNodes"
 					@select-another-value="selectAnotherValue"
@@ -31,14 +30,12 @@
 </template>
 
 <script>
-/* eslint-disable no-console */
 export default {
 	name: 'TreeView',
 	props: {
 		item: Object,
 		value: String,
 		treeData: Array,
-		isSearch: Boolean,
 		searchInputText: String,
 		openedNodes: Array
 	},

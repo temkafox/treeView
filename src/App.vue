@@ -9,7 +9,6 @@
         :item="item"
         :value="value"
         :treeData="treeData"
-        :isSearch="isSearch"
         :searchInputText="searchInputText"
         :openedNodes="openedNodes"
         @select-another-value="selectAnotherValue"
@@ -21,7 +20,6 @@
 </template>
 
 <script>
-/* eslint-disable no-console */
 import TreeView from './components/TreeView'
 import TreeViewSearch from './components/TreeViewSearch'
 import { TREE_DATA } from './components/constants'
@@ -35,7 +33,6 @@ export default {
     return {
       flatTreeData: [],
       value: null,
-      isSearch: false,
       searchInputText: '',
       parentId: null,
       openedNodes: []
@@ -53,11 +50,6 @@ export default {
       this.openedNodes.splice(deleteIndex, 1)
     },
     openAllNodes() {
-      // this.openedNodes = this.flatTreeData
-      //   .filter(item =>
-      //     !!this.flatTreeData.find(child => child.parentId === item.id)
-      //   )
-      //   .map(item => item.id)
       const ids = this.flatTreeData.reduce((res, item) => {
         if (item.name.toLowerCase().includes(this.searchInputText.toLowerCase()))
           res.push(...item.ancestorsIds)
@@ -78,12 +70,11 @@ export default {
       }, [])
     },
     search(searchInputText) {
-      searchInputText ? this.isSearch = true : this.isSearch = false
       this.searchInputText = searchInputText
       this.openAllNodes()
     },
     searchTreeNodes(treeData, searchText) {
-      if(searchText === '')
+      if(!searchText)
         this.closeAllNodes()
       return treeData.reduce((result, item) => {
         if (item.name.toLowerCase().includes(searchText.toLowerCase())){
