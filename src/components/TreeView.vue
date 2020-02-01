@@ -1,23 +1,29 @@
 <template>
 	<li class="tree-view__list">
 		<span
-			:class="[hasChildren(treeData) ? 'tree-view__list-name_active' : '', 'tree-view__list-name']"
-			@click="openNode(treeData.value)"
+			:class="[isItemOpen(item.id) ? 'tree-view__list-name_is-open' : '', 'tree-view__list-name']"
+			@click="openNode(item)"
 		>
-			<span :class="[isOpen ? 'tree-view__list-marker_active' : 'tree-view__list-marker']">
-				{{ isOpen? '&#9660;' : '&#9658;' }}
+			<span :class="[isItemOpen(item.id) ? 'tree-view__list-marker_active' : 'tree-view__list-marker']">
+				{{ isItemOpen(item.id)? '&#9660;' : '&#9658;' }}
 			</span>
-			{{ treeData.name }}
+			<span v-html="getHighlitedName()"></span>
 		</span>
-		<ul v-if="isOpen">
-			<div class="tree-view__list-value">{{ getSelectedValue(treeData.value) }}</div>
-			<template v-if="hasChildren(treeData)">
+		<ul v-if="isItemOpen(item.id)">
+			<div class="tree-view__list-value">{{ getSelectedValue(item.value) }}</div>
+			<template>
 				<TreeView
-					v-for="(child, index) in treeData.phones"
+					v-for="(child, index) in thisTreeData"
 					:key="index"
-					:treeData="child"
+					:item="child"
 					:value="value"
+					:treeData="childTreeData"
+					:isSearch="isSearch"
+					:searchInputText="searchInputText"
+					:openedNodes="openedNodes"
 					@select-another-value="selectAnotherValue"
+					@open='open'
+					@close='close'
 				/>
 			</template>
 		</ul>
@@ -25,32 +31,59 @@
 </template>
 
 <script>
+/* eslint-disable no-console */
 export default {
 	name: 'TreeView',
 	props: {
-		treeData: Object,
-		value: String
-	},
-	data() {
-		return {
-			isOpen: false,
-			activeClass: "tree-view__list-name_active"
-		}
+		item: Object,
+		value: String,
+		treeData: Array,
+		isSearch: Boolean,
+		searchInputText: String,
+		openedNodes: Array
 	},
 	methods: {
-		hasChildren(item) {
-			return (item.phones.length > 0)
+		hasChildren(id) {
+			return (!id)
 		},
-		openNode(value) {
-			this.$emit('select-another-value', value)
-			this.isOpen = !this.isOpen
+		isItemOpen(id){
+			return !!this.openedNodes.find(i => i === id)
+		},
+		openNode(item) {
+			this.$emit('select-another-value', item.value)
+			if(!this.openedNodes.find(i => i === item.id))
+				this.open(item.id)
+			else
+				this.close(item.id)
+		},
+		open(id) {
+			this.$emit('open', id)
+		},
+		close(id) {
+			this.$emit('close', id)
 		},
 		selectAnotherValue(value) {
 			this.$emit('select-another-value', value)
 		},
 		getSelectedValue(value) {
-			return this.value === value ? `Value: ${this.value}` : 'Value: none'
+			return this.value === value ? `Value: ${this.value}` : ''
+		},
+		getHighlitedName() {
+			if(!this.searchInputText) {
+				return this.item.name;
+			}
+			return this.item.name.replace(new RegExp(this.searchInputText, "gi"), match => {
+				return '<span class="highlightText">' + match + '</span>';
+			});
 		}
+	},
+	computed: {
+		childTreeData: function () {
+			return this.treeData
+		},
+		thisTreeData: function () {
+			return this.treeData.filter(item => item.parentId === this.item.id)
+		},
 	}
 }
 </script>
@@ -61,18 +94,17 @@ export default {
 		flex-direction: column;
 	}
 	.tree-view__list-name {
-		opacity: 0.4;
 		width: fit-content;
 		border: 1px solid rgba(0,0,0,0.1);
 		border-radius: 4px;
 		padding: 5px 10px;
-		margin-bottom: 4px;
+		margin-bottom: 6px;
 		cursor: pointer;
-		user-select: none; 
-	}
-	.tree-view__list-name_active {
-		opacity: 1;
+		user-select: none;
 		border: 1px solid rgba(0,153,0,0.2);
+	}
+	.tree-view__list-name_is-open {
+		box-shadow: 2px 4px 2px 0px rgba(0,0,0, 0.25);
 	}
 	.tree-view__list-name_active:hover {
 		background-color: rgba(0,153,0,0.1);
@@ -88,4 +120,10 @@ export default {
 	.tree-view__list-marker_active {
 		color: rgba(0,153,0,1);
 	}
+	.highlightText {
+		background-color: yellow;
+		border-radius: 5px;
+	}
 </style>
+
+
